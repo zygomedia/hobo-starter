@@ -1,0 +1,20 @@
+[package]
+name = "server"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+shared = { workspace = true }
+axum = "0.8"
+swc = "23"
+swc_common = "9"
+swc_ecma_ast = "9"
+minify-html = "0.16"
+pu-239 = "0.2"
+postcard = { version = "1", features = ["use-std"] }
+
+[build-dependencies]
+change-detection = "1"

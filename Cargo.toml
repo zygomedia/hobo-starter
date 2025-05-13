@@ -1,0 +1,12 @@
+[workspace]
+members = [
+	"crates/xtask",
+	"crates/client",
+	"crates/shared",
+	"crates/server",
+]
+resolver = "2"
+
+[workspace.dependencies]
+shared = { path = "crates/shared" }
+reqwest = { version = "0.12", features = ["gzip", "brotli", "json", "rustls-tls-native-roots", "cookies"], default-features = false }

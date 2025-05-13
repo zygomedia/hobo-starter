@@ -1,0 +1,22 @@
+[package]
+name = "client"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow = "1"
+wasm-bindgen = { version = "0.2", features = ["serde-serialize", "strict-macro", "enable-interning"] }
+wasm-bindgen-futures = "0.4"
+shared = { workspace = true }
+serde = "1"
+console_error_panic_hook = "0.1"
+hobo = { version = "1.0.0-rc.1", features = ["experimental", "insert-rule"] }
+tap = "1"
+pu-239 = "0.2"
+postcard = { version = "1", features = ["use-std"] }
+reqwest = { workspace = true }
+log = "0.4"
+wasm-log = "0.3"
