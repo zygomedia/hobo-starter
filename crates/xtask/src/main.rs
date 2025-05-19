@@ -20,6 +20,7 @@ enum Command {
 		#[arg(short, long)] debug: bool,
 		#[arg(short, long)] release: bool,
 	},
+	Watch,
 	WatchClient,
 	WatchServer,
 	Build {
@@ -51,18 +52,32 @@ fn handle_command(command: Command) {
 				if release { cmd!(cargo check --release -p $p $extra).unwrap(); }
 			}
 		},
+		Command::Watch => {
+			if cmd!(watchexec --version).is_err() {
+				cmd!(cargo install watchexec-cli).unwrap();
+			}
+
+			let deps = [
+				"crates/client",
+				"crates/server",
+				"crates/shared",
+				"misc/response.html",
+			].iter().flat_map(|x| ["-w", x]);
+
+			cmd!(watchexec -r --debounce 1500 --no-project-ignore $[deps] "cargo xtask build-client; cargo run -p server --bin server").unwrap();
+		},
 		Command::WatchClient => {
 			if cmd!(watchexec --version).is_err() {
 				cmd!(cargo install watchexec-cli).unwrap();
 			}
 
-			let client_deps = [
+			let deps = [
 				"crates/client",
 				"crates/shared",
 				"misc/response.html",
 			].iter().flat_map(|x| ["-w", x]);
 
-			cmd!(watchexec -r --debounce 1500 --no-project-ignore $[client_deps] "cargo xtask build-client").unwrap();
+			cmd!(watchexec -r --debounce 1500 --no-project-ignore $[deps] "cargo xtask build-client").unwrap();
 		},
 		Command::WatchServer => {
 			// v1.25
@@ -70,14 +85,14 @@ fn handle_command(command: Command) {
 				cmd!(cargo install watchexec-cli).unwrap();
 			}
 
-			let server_deps = [
+			let deps = [
 				"crates/client",
 				"crates/server",
 				"crates/shared",
 				"misc/response.html",
 			].iter().flat_map(|x| ["-w", x]);
 
-			cmd!(watchexec -r --debounce 1500 --no-project-ignore $[server_deps] "cargo run -p server --bin server").unwrap();
+			cmd!(watchexec -r --debounce 1500 --no-project-ignore $[deps] "cargo run -p server --bin server").unwrap();
 		},
 		Command::Build { only, skip } => {
 			assert!(only.is_empty() || (only.len() == 1 && skip.is_empty()));
