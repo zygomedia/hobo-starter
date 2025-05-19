@@ -99,12 +99,15 @@ fn handle_command(command: Command) {
 			let build_server = only.contains(&BuildComponent::Server) || (only.is_empty() && !skip.contains(&BuildComponent::Server));
 			let build_client = only.contains(&BuildComponent::Client) || (only.is_empty() && !skip.contains(&BuildComponent::Client));
 
-			if build_server {
-				cmd!(wsl -d Ubuntu bash -c "source ~/.profile && cargo build --package server --release").unwrap();
-			}
-
 			if build_client {
 				handle_command(Command::BuildClient { release: true });
+			}
+
+			if build_server {
+				// uncomment this if building on Windows but targeting a Linux server
+				// cmd!(wsl -d Ubuntu bash -c "source ~/.profile && cargo build --package server --release").unwrap();
+
+				cmd!(cargo build --package server --release).unwrap();
 			}
 		},
 		Command::BuildClient { release } => {
@@ -122,9 +125,18 @@ fn handle_command(command: Command) {
 			cmd!(cargo build -p client --target wasm32-unknown-unknown --target-dir target/wasm-target $cargo_build_profile).unwrap();
 
 			let wasm_bindgen_params = if release {
-				vec!["--out-dir", "target/wasm-target/wasm32-unknown-unknown/release", "--remove-name-section", "--remove-producers-section", "target/wasm-target/wasm32-unknown-unknown/release/client.wasm"]
+				vec![
+					"--out-dir", "target/wasm-target/wasm32-unknown-unknown/release",
+					"--remove-name-section",
+					"--remove-producers-section",
+					"target/wasm-target/wasm32-unknown-unknown/release/client.wasm",
+				]
 			} else {
-				vec!["--out-dir", "target/wasm-target/wasm32-unknown-unknown/debug", "--debug", "target/wasm-target/wasm32-unknown-unknown/debug/client.wasm"]
+				vec![
+					"--out-dir", "target/wasm-target/wasm32-unknown-unknown/debug",
+					"--debug",
+					"target/wasm-target/wasm32-unknown-unknown/debug/client.wasm",
+				]
 			};
 
 			cmd!(wasm-bindgen --out-name client_bound --target web --no-typescript --omit-imports --omit-default-module-path --reference-types $[wasm_bindgen_params]).unwrap();
